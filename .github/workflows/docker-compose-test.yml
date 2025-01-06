@@ -37,6 +37,11 @@ jobs:
         run: |
           gcloud auth configure-docker us-east1-docker.pkg.dev
 
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+
       # Step 4: Build and Push Docker Images using .env
       - name: Build and Push Docker Images
         run: |
