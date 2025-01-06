@@ -3,7 +3,7 @@ name: Docker Compose GCP Workflow
 on:
   push:
     branches:
-      - "feature/modify-helm-charts" # Change this to your feature branch
+      - "feature/modify-helm-charts"
     paths-ignore:
       - "DCOS/**"
       - "K8s/**"
@@ -18,43 +18,25 @@ jobs:
     steps:
       # Step 1: Checkout Code
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # Step 2: Construct JSON Key File Dynamically
-      - name: Construct JSON Key File
+      # Step 2: Authenticate with GCP using WIF
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: "projects/194474414187/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider"
+          service_account: "github-actions-sa@graceful-byway-445402-q0.iam.gserviceaccount.com"
+
+      # Step 3: Configure Docker for GCP Artifact Registry
+      - name: Configure Docker for GCP Artifact Registry
         run: |
-          cat <<EOF > key.json
-          {
-            "type": "service_account",
-            "project_id": "graceful-byway-445402-q0",
-            "private_key_id": "df5113925b236031e19da1ca2acefa1955b4c46f",
-            "private_key": "${{ secrets.GIT_ACTIONS_GCP_SA_KEY }}",
-            "client_email": "github-actions-sa@graceful-byway-445402-q0.iam.gserviceaccount.com",
-            "client_id": "113177326761865973430",
-            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-            "token_uri": "https://oauth2.googleapis.com/token",
-            "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-            "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/github-actions-sa@graceful-byway-445402-q0.iam.gserviceaccount.com"
-          }
-          EOF
-
-      - name: Debug Key File
-        run: cat key.json
-
-
-      # Step 3: Authenticate with GCP
-      - name: Authenticate with GCP
-        run: |
-          gcloud auth activate-service-account --key-file=key.json
           gcloud auth configure-docker us-east1-docker.pkg.dev
 
-      # Step 4: Build and Push Docker Images
+      # Step 4: Build and Push Docker Images using .env
       - name: Build and Push Docker Images
         run: |
-          export REPO=us-east1-docker.pkg.dev/graceful-byway-445402-q0/docker-image-repo
-          export TAG=$(date +%Y%m%d%H%M%S) # Use a timestamp as the tag
-          docker-compose build
-          docker-compose push
+          docker-compose --env-file .env build
+          docker-compose --env-file .env push
 
       # Step 5: Debug Output (Optional)
       - name: List Docker Images in GCP
