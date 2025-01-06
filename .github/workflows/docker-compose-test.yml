@@ -47,8 +47,3 @@ jobs:
         run: |
           docker-compose --env-file .env build
           docker-compose --env-file .env push
-
-      # Step 5: Debug Output (Optional)
-      - name: List Docker Images in GCP
-        run: |
-          gcloud artifacts repositories list --location=us-east1
