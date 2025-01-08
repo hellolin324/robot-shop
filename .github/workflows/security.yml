@@ -36,26 +36,31 @@ jobs:
             docker build -t robot-shop/$service:latest ./$service
           done
 
+         # Dynamic Image Scans Using Trivy CLI
       - name: Run Trivy Image Scans
-        uses: aquasecurity/trivy-action@0.29.0
-        with:
-          scan-type: 'image'
-          image-ref: 'robot-shop/$service:latest'
-          format: 'sarif'
-          output: 'trivy-image-results.sarif'
-          severity: 'CRITICAL,HIGH'
-          ignore-unfixed: true
-
-    # Upload Image Scan Results
+        run: |
+           services=(cart catalogue dispatch payment ratings shipping user web)
+           for service in "${services[@]}"; do
+             echo "Scanning image robot-shop/$service:latest"
+             trivy image --severity CRITICAL,HIGH --ignore-unfixed --format sarif \
+               -o trivy-image-results-$service.sarif robot-shop/$service:latest
+           done
+ 
+       # Upload Image Scan Results
       - name: Upload Image Scan Results
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: 'trivy-image-results.sarif'
+           sarif_file: './trivy-image-results-*.sarif'
 
-    # Run Trivy Config Scan for IaC
-      - name: Run Trivy Config Scan
-        run: |
-         trivy config --severity CRITICAL,HIGH --format sarif --output trivy-config-results.sarif .
+
+      - name: Run Trivy vulnerability scanner in IaC mode
+        uses: aquasecurity/trivy-action@0.29.0
+        with:
+            scan-type: 'config'
+            hide-progress: true
+            format: 'sarif'
+            output: 'trivy-config-results.sarif'
+            severity: 'CRITICAL,HIGH'
 
     # Upload Config Scan Results
       - name: Upload Config Scan Results
