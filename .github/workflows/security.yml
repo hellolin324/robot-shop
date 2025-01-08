@@ -28,6 +28,14 @@ jobs:
           image-ref: '.'
           github-pat: ${{ secrets.GITHUB_TOKEN }}
 
+                # Container image scan
+      - name: Build Docker Images
+        run: |
+           services=(cart catalogue dispatch payment ratings shipping user web)
+           for service in "${services[@]}"; do
+           docker build -t robot-shop/$service:latest ./$service
+           done
+
       - name: Run Trivy Image Scans
         run: |
             services=(cart catalogue dispatch payment ratings shipping user web)
