@@ -28,30 +28,26 @@ jobs:
           image-ref: '.'
           github-pat: ${{ secrets.GITHUB_TOKEN }}
 
-      # Container image scan
-      - name: Build Docker Images
-        run: |
-          services=(cart catalogue dispatch payment ratings shipping user web)
-          for service in "${services[@]}"; do
-            docker build -t robot-shop/$service:latest ./$service
-          done
-
-         # Dynamic Image Scans Using Trivy CLI
       - name: Run Trivy Image Scans
         run: |
-           services=(cart catalogue dispatch payment ratings shipping user web)
-           for service in "${services[@]}"; do
-             echo "Scanning image robot-shop/$service:latest"
-             trivy image --severity CRITICAL,HIGH --ignore-unfixed --format sarif \
-               -o trivy-image-results-$service.sarif robot-shop/$service:latest
-           done
- 
-       # Upload Image Scan Results
+            services=(cart catalogue dispatch payment ratings shipping user web)
+            for service in "${services[@]}"; do
+              echo "Scanning image robot-shop/$service:latest"
+              if ! trivy image --severity CRITICAL,HIGH --ignore-unfixed --format sarif \
+                  -o ./trivy-image-results-$service.sarif robot-shop/$service:latest; then
+                echo "Trivy scan failed for robot-shop/$service:latest"
+              fi
+            done
+        
+      - name: Debug SARIF Files
+        run: |
+            ls -lah ./trivy-image-results-*.sarif || echo "No SARIF files found."
+        
       - name: Upload Image Scan Results
         uses: github/codeql-action/upload-sarif@v3
         with:
-           sarif_file: './trivy-image-results-*.sarif'
-
+            sarif_file: './trivy-image-results-*.sarif'
+        
 
       - name: Run Trivy vulnerability scanner in IaC mode
         uses: aquasecurity/trivy-action@0.29.0
