@@ -59,6 +59,22 @@ jobs:
         with:
          sarif_file: sarif-output/
 
+      # List All Installed Packages with Trivy
+      - name: List All Installed Packages
+        run: |
+           services=(cart catalogue dispatch payment ratings shipping user web)
+           mkdir -p trivy-package-reports
+           for service in "${services[@]}"; do
+             echo "Listing all installed packages for robot-shop/$service:latest"
+             trivy image --list-all-pkgs --format table -o trivy-package-reports/$service-packages.txt robot-shop/$service:latest
+           done
+ 
+       # Upload Installed Package Reports
+      - name: Upload Trivy Package Reports
+        uses: actions/upload-artifact@v3
+        with:
+           name: trivy-package-reports
+           path: trivy-package-reports/
         
 
       - name: Run Trivy vulnerability scanner in IaC mode
