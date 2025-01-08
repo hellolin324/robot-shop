@@ -1,10 +1,14 @@
 name: Security Scanning
 
 on:
+  push:
+    branches:
+      - "feature/modify-helm-charts"
   workflow_dispatch:
 
 permissions:
   contents: write
+  security-events: write
 
 jobs:
   trivy_scan:
