@@ -58,6 +58,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
          sarif_file: sarif-output/
+         category: "image-scan-results"
 
       # List All Installed Packages with Trivy
       - name: List All Installed Packages
@@ -91,3 +92,4 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
          sarif_file: 'trivy-config-results.sarif'
+         category: "config-scan-results"
