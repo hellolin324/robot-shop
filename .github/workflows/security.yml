@@ -63,7 +63,7 @@ jobs:
             fi
 
            mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
-           ./codeql-cli/codeql/codeql database finalize java-db
+           
            ./codeql-cli/codeql/codeql database analyze java-db \
               --format=sarif-latest \
               --output=results/java/java-results.sarif
