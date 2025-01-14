@@ -50,7 +50,10 @@ jobs:
            ./codeql-cli/codeql/codeql database create java-db \
               --language=java \
               --source-root=$(pwd)/shipping
-           ./codeql-cli/codeql/tools/linux64/tracer mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
+           echo "Checking contents of CodeQL database..."
+           ls -R $(pwd)/java-db/src || echo "No source files found in the database."
+           echo "Running Maven build with preload_tracer..."
+           ./codeql-cli/codeql/tools/linux64/preload_tracer mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
            ./codeql-cli/codeql/codeql database finalize java-db
            ./codeql-cli/codeql/codeql database analyze java-db \
               --format=sarif-latest \
