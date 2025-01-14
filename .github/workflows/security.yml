@@ -64,6 +64,9 @@ jobs:
 
            mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
            
+           echo "install query pack"
+           ./codeql-cli/codeql/codeql pack install
+
            echo "running db analyze..."
            ./codeql-cli/codeql/codeql database analyze java-db \
               --search-path=./codeql-cli/codeql \
