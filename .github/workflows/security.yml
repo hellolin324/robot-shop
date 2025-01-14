@@ -64,8 +64,10 @@ jobs:
 
            mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
             
-            echo "listing all existing query packs"
-           ./codeql-cli/codeql/codeql pack list
+           echo "Checking default query pack cache directory..."
+           ls -la
+           ls -la /home/runner/.codeql/packages/
+
 
            echo "running db analyze..."
            ./codeql-cli/codeql/codeql database analyze java-db \
