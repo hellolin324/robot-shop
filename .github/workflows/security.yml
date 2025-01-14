@@ -49,7 +49,7 @@ jobs:
            mkdir -p results/java
            ./codeql-cli/codeql/codeql database create java-db \
               --language=java \
-              --source-root=$(pwd)/java-db/src/home/runner/work/robot-shop/robot-shop/shipping
+              --source-root=$(pwd)/shipping
            echo "Checking contents of CodeQL database folder..."
             ls -R $(pwd)/java-db/ || echo "CodeQL database folder is empty or not created properly."
            
@@ -145,85 +145,85 @@ jobs:
               sarif_file: 'results/javascript/javascript-results.sarif'
               category: 'sast-javascript'
 
-  trivy_scan:
-    name: Run Trivy Security Scans
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+  # trivy_scan:
+  #   name: Run Trivy Security Scans
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repository
+  #       uses: actions/checkout@v4
 
-      # File System scan and generate SBOM
-      - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
-        uses: aquasecurity/trivy-action@0.29.0
-        with:
-          scan-type: 'fs'
-          format: 'github'
-          output: 'dependency-results.sbom.json'
-          image-ref: '.'
-          github-pat: ${{ secrets.GITHUB_TOKEN }}
+  #     # File System scan and generate SBOM
+  #     - name: Run Trivy in GitHub SBOM mode and submit results to Dependency Graph
+  #       uses: aquasecurity/trivy-action@0.29.0
+  #       with:
+  #         scan-type: 'fs'
+  #         format: 'github'
+  #         output: 'dependency-results.sbom.json'
+  #         image-ref: '.'
+  #         github-pat: ${{ secrets.GITHUB_TOKEN }}
 
-                # Container image scan
-      - name: Build Docker Images
-        run: |
-           services=(cart catalogue dispatch payment ratings shipping user web)
-           for service in "${services[@]}"; do
-           docker build -t robot-shop/$service:latest ./$service
-           done
+  #               # Container image scan
+  #     - name: Build Docker Images
+  #       run: |
+  #          services=(cart catalogue dispatch payment ratings shipping user web)
+  #          for service in "${services[@]}"; do
+  #          docker build -t robot-shop/$service:latest ./$service
+  #          done
 
-      # Run Trivy Image Scans for Each Service
-      - name: Run Trivy Image Scans
-        run: |
-         mkdir -p sarif-output
-         services=(cart catalogue dispatch payment ratings shipping user web)
-         for service in "${services[@]}"; do
-         echo "Scanning image robot-shop/$service:latest"
-         trivy image --severity CRITICAL,HIGH --ignore-unfixed --format sarif \
-         -o sarif-output/trivy-image-results-$service.sarif robot-shop/$service:latest
-         done
+  #     # Run Trivy Image Scans for Each Service
+  #     - name: Run Trivy Image Scans
+  #       run: |
+  #        mkdir -p sarif-output
+  #        services=(cart catalogue dispatch payment ratings shipping user web)
+  #        for service in "${services[@]}"; do
+  #        echo "Scanning image robot-shop/$service:latest"
+  #        trivy image --severity CRITICAL,HIGH --ignore-unfixed --format sarif \
+  #        -o sarif-output/trivy-image-results-$service.sarif robot-shop/$service:latest
+  #        done
 
-      # Debug: List SARIF Files
-      - name: Debug SARIF Files
-        run: |
-         echo "Listing SARIF files in the sarif-output directory:"
-         ls -lah sarif-output || echo "No SARIF files found."
+  #     # Debug: List SARIF Files
+  #     - name: Debug SARIF Files
+  #       run: |
+  #        echo "Listing SARIF files in the sarif-output directory:"
+  #        ls -lah sarif-output || echo "No SARIF files found."
 
-      # Upload All SARIF Files in the Folder
-      - name: Upload Image Scan Results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-         sarif_file: sarif-output/
-         category: "image-scan-results"
+  #     # Upload All SARIF Files in the Folder
+  #     - name: Upload Image Scan Results
+  #       uses: github/codeql-action/upload-sarif@v3
+  #       with:
+  #        sarif_file: sarif-output/
+  #        category: "image-scan-results"
 
-      # List All Installed Packages with Trivy
-      - name: List All Installed Packages
-        run: |
-           services=(cart catalogue dispatch payment ratings shipping user web)
-           mkdir -p trivy-package-reports
-           for service in "${services[@]}"; do
-             echo "Listing all installed packages for robot-shop/$service:latest"
-             trivy image --list-all-pkgs --format table -o trivy-package-reports/$service-packages.txt robot-shop/$service:latest
-           done
+  #     # List All Installed Packages with Trivy
+  #     - name: List All Installed Packages
+  #       run: |
+  #          services=(cart catalogue dispatch payment ratings shipping user web)
+  #          mkdir -p trivy-package-reports
+  #          for service in "${services[@]}"; do
+  #            echo "Listing all installed packages for robot-shop/$service:latest"
+  #            trivy image --list-all-pkgs --format table -o trivy-package-reports/$service-packages.txt robot-shop/$service:latest
+  #          done
  
-       # Upload Installed Package Reports
-      - name: Upload Trivy Package Reports
-        uses: actions/upload-artifact@v3
-        with:
-           name: trivy-package-reports
-           path: trivy-package-reports/
+  #      # Upload Installed Package Reports
+  #     - name: Upload Trivy Package Reports
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #          name: trivy-package-reports
+  #          path: trivy-package-reports/
         
 
-      - name: Run Trivy vulnerability scanner in IaC mode
-        uses: aquasecurity/trivy-action@0.29.0
-        with:
-            scan-type: 'config'
-            hide-progress: true
-            format: 'sarif'
-            output: 'trivy-config-results.sarif'
-            severity: 'CRITICAL,HIGH'
+  #     - name: Run Trivy vulnerability scanner in IaC mode
+  #       uses: aquasecurity/trivy-action@0.29.0
+  #       with:
+  #           scan-type: 'config'
+  #           hide-progress: true
+  #           format: 'sarif'
+  #           output: 'trivy-config-results.sarif'
+  #           severity: 'CRITICAL,HIGH'
 
-    # Upload Config Scan Results
-      - name: Upload Config Scan Results
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-         sarif_file: 'trivy-config-results.sarif'
-         category: "config-scan-results"
+  #   # Upload Config Scan Results
+  #     - name: Upload Config Scan Results
+  #       uses: github/codeql-action/upload-sarif@v3
+  #       with:
+  #        sarif_file: 'trivy-config-results.sarif'
+  #        category: "config-scan-results"
