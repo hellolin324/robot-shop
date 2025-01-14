@@ -33,22 +33,25 @@ jobs:
            echo "Contents of ./shipping:"
            ls -la ./shipping
 
-        - name: Run CodeQL Analysis for Java
-          env:
-             CODEQL_EXTRACTOR_JAVA_DEBUG: true
+        # Step 3: Install Full CodeQL CLI
+        - name: Install Full CodeQL CLI
           run: |
-             mkdir -p results/java
-   
-             # Explicitly attach tracer to Maven build
-             "${CODEQL_DIST}/tools/linux64/tracer" mvn clean package -f $(pwd)/shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
-   
-             # Finalize and analyze database
-             "${CODEQL_DIST}/codeql" database create java-db \
-               --language=java \
-               --source-root=$(pwd)/shipping
-             "${CODEQL_DIST}/codeql" database analyze java-db \
-               --format=sarif-latest \
-               --output=results/java/java-results.sarif
+            wget https://github.com/github/codeql-cli-binaries/releases/download/v2.20.1/codeql-linux64.zip
+            unzip codeql-linux64.zip -d codeql-cli
+            export PATH=$PATH:$(pwd)/codeql-cli/codeql
+
+    # Step 4: Run CodeQL Analysis with Tracer
+        - name: Run CodeQL Analysis for Java
+          run: |
+           mkdir -p results/java
+           ./codeql-cli/codeql/codeql database create java-db \
+              --language=java \
+              --source-root=$(pwd)/shipping
+           ./codeql-cli/codeql/tools/linux64/tracer mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
+           ./codeql-cli/codeql/codeql database finalize java-db
+           ./codeql-cli/codeql/codeql database analyze java-db \
+              --format=sarif-latest \
+              --output=results/java/java-results.sarif
   
         - name: Upload SARIF Results for Java
           uses: github/codeql-action/upload-sarif@v3
