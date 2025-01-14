@@ -26,14 +26,18 @@ jobs:
           with:
             languages: 'java'
 
-        - name: Autobuild Java
-          uses: github/codeql-action/autobuild@v3
-
         - name: Run CodeQL Analysis for Java
+          env:
+            CODEQL_EXTRACTOR_JAVA_DEBUG: true
           run: |
-            mkdir -p results/java
-            "${CODEQL_DIST}/codeql" database create java-db --language=java --source-root=./shipping
-            "${CODEQL_DIST}/codeql" database analyze java-db --format=sarif-latest --output=results/java/java-results.sarif
+              mkdir -p results/java
+              "${CODEQL_DIST}/codeql" database create java-db \
+                --language=java \
+                --source-root=./shipping \
+                --command "mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true"
+              "${CODEQL_DIST}/codeql" database analyze java-db \
+                --format=sarif-latest \
+                --output=results/java/java-results.sarif
   
         - name: Upload SARIF Results for Java
           uses: github/codeql-action/upload-sarif@v3
