@@ -50,31 +50,35 @@ jobs:
            ./codeql-cli/codeql/codeql database create java-db \
               --language=java \
               --source-root=$(pwd)/shipping
-           echo "Checking contents of CodeQL database folder..."
-            ls -R $(pwd)/java-db/ || echo "CodeQL database folder is empty or not created properly."
-           
-            if [ -f "$(pwd)/java-db/src.zip" ]; then
-            echo "Extracting src.zip into src folder..."
-            unzip -q $(pwd)/java-db/src.zip -d $(pwd)/java-db/src
-            echo "Contents of extracted src folder:"
-            ls -R $(pwd)/java-db/src
-            else
-            echo "src.zip not found! Database might be incomplete."
-            fi
+              
+         
 
-           mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
+   
+            echo "Setting up custom query pack cache..."
+            mkdir -p ./codeql-cache
+            export CODEQL_PACKAGES_PATH=$(pwd)/codeql-cache
+            echo "Using custom query pack cache: $CODEQL_PACKAGES_PATH"
             
-           echo "Checking default query pack cache directory..."
-           ls -la
-           ls -la /home/runner/.codeql/packages/
-
-
-           echo "running db analyze..."
-           ./codeql-cli/codeql/codeql database analyze java-db \
-              --verbose \
-              --format=sarif-latest \
-              --output=results/java/java-results.sarif
-              codeql/java-queries
+            echo "Installing the CodeQL query pack for Java..."
+            if ! ./codeql-cli/codeql/codeql pack install codeql/java-queries; then
+              echo "Failed to install query pack. Falling back to manual download..."
+              git clone https://github.com/github/codeql.git
+            fi
+            
+        
+            if [ -d "./codeql-cache/codeql/java-queries" ]; then
+              echo "Running analysis with cached query pack..."
+              ./codeql-cli/codeql/codeql database analyze java-db \
+                --format=sarif-latest \
+                --output=results/java/java-results.sarif \
+                ./codeql-cache/codeql/java-queries
+            else
+              echo "Running analysis with manually downloaded query pack..."
+              ./codeql-cli/codeql/codeql database analyze java-db \
+                --format=sarif-latest \
+                --output=results/java/java-results.sarif \
+                ./codeql/java/ql/src
+            fi
   
         - name: Upload SARIF Results for Java
           uses: github/codeql-action/upload-sarif@v3
