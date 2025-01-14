@@ -61,26 +61,8 @@ jobs:
             else
             echo "src.zip not found! Database might be incomplete."
             fi
-            
-            echo "Setting up CodeQL environment variables for tracer..."
-            export CODEQL_DIST=$(pwd)/codeql-cli/codeql
-            export CODEQL_TRACER_HOME=$(pwd)/codeql-cli/codeql/tools
-            export CODEQL_TRACER_LOG=$(pwd)/codeql-tracer.log
 
-            echo "Running Maven build with preload_tracer..."
-            echo "Checking if preload_tracer is a directory..."
-            if [ -d "./codeql-cli/codeql/tools/linux64/preload_tracer" ]; then
-            echo "preload_tracer is a directory. Listing its contents:"
-            ls -la ./codeql-cli/codeql/tools/linux64/preload_tracer
-            else
-            echo "preload_tracer is not a directory. Checking if it is a file:"
-            file ./codeql-cli/codeql/tools/linux64/preload_tracer || echo "preload_tracer does not exist!"
-            fi
-
-            ldd ./codeql-cli/codeql/tools/linux64/preload_tracer
-           ./codeql-cli/codeql/tools/linux64/preload_tracer echo "Hello from preload_tracer"
-           ./codeql-cli/codeql/tools/linux64/preload_tracer -v mvn --version
-           ./codeql-cli/codeql/tools/linux64/preload_tracer -v mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
+           mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
            ./codeql-cli/codeql/codeql database finalize java-db
            ./codeql-cli/codeql/codeql database analyze java-db \
               --format=sarif-latest \
