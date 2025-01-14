@@ -26,18 +26,28 @@ jobs:
           with:
             languages: 'java'
 
-        - name: Run CodeQL Analysis for Java
-          env:
-            CODEQL_EXTRACTOR_JAVA_DEBUG: true
+         # Debug current directory and verify paths
+        - name: Debug Paths
           run: |
-              mkdir -p results/java
-              "${CODEQL_DIST}/codeql" database create java-db \
-                --language=java \
-                --source-root=./shipping \
-                --command "mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true"
-              "${CODEQL_DIST}/codeql" database analyze java-db \
-                --format=sarif-latest \
-                --output=results/java/java-results.sarif
+           echo "Current directory: $(pwd)"
+           echo "Contents of ./shipping:"
+           ls -la ./shipping
+
+         # Run CodeQL Analysis for Java
+        - name: Run CodeQL Analysis for Java
+          run: |
+           # Ensure correct working directory
+           mkdir -p results/java
+
+           # Correct command with absolute paths
+           "${CODEQL_DIST}/codeql" database create java-db \
+           --language=java \
+           --source-root="$(pwd)/shipping" \
+           --command "mvn clean package -f $(pwd)/shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true"
+
+           "${CODEQL_DIST}/codeql" database analyze java-db \
+            --format=sarif-latest \
+            --output=results/java/java-results.sarif
   
         - name: Upload SARIF Results for Java
           uses: github/codeql-action/upload-sarif@v3
