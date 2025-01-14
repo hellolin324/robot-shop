@@ -32,8 +32,8 @@ jobs:
         - name: Run CodeQL Analysis for Java
           run: |
             mkdir -p results/java
-            codeql database create java-db --language=java --source-root=.
-            codeql database analyze java-db --format=sarif-latest --output=results/java/java-results.sarif
+            "${CODEQL_DIST}/codeql" database create java-db --language=java --source-root=.
+            "${CODEQL_DIST}/codeql" database analyze java-db --format=sarif-latest --output=results/java/java-results.sarif
   
         - name: Upload SARIF Results for Java
           uses: github/codeql-action/upload-sarif@v3
@@ -50,8 +50,8 @@ jobs:
         - name: Run CodeQL Analysis for Python
           run: |
               mkdir -p results/python
-              codeql database create python-db --language=python --source-root=.
-              codeql database analyze python-db --format=sarif-latest --output=results/python/python-results.sarif
+              "${CODEQL_DIST}/codeql" database create python-db --language=python --source-root=.
+              "${CODEQL_DIST}/codeql" database analyze python-db --format=sarif-latest --output=results/python/python-results.sarif
     
         - name: Upload SARIF Results for Python
           uses: github/codeql-action/upload-sarif@v3
@@ -73,8 +73,8 @@ jobs:
         - name: Run CodeQL Analysis for Go
           run: |
               mkdir -p results/go
-              codeql database create go-db --language=go --source-root=.
-              codeql database analyze go-db --format=sarif-latest --output=results/go/go-results.sarif
+              "${CODEQL_DIST}/codeql" database create go-db --language=go --source-root=.
+              "${CODEQL_DIST}/codeql" database analyze go-db --format=sarif-latest --output=results/go/go-results.sarif
     
         - name: Upload SARIF Results for Go
           uses: github/codeql-action/upload-sarif@v3
@@ -96,8 +96,8 @@ jobs:
             - name: Run CodeQL Analysis for JavaScript
             run: |
               mkdir -p results/javascript
-              codeql database create javascript-db --language=javascript --source-root=.
-              codeql database analyze javascript-db --format=sarif-latest --output=results/javascript/javascript-results.sarif
+              "${CODEQL_DIST}/codeql" database create javascript-db --language=javascript --source-root=.
+              "${CODEQL_DIST}/codeql" database analyze javascript-db --format=sarif-latest --output=results/javascript/javascript-results.sarif
     
         - name: Upload SARIF Results for JavaScript
           uses: github/codeql-action/upload-sarif@v3
