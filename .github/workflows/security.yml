@@ -25,7 +25,7 @@ jobs:
           uses: github/codeql-action/init@v3
           with:
             languages: 'java'
-            build-mode: manual
+            build-mode: none
 
          # Debug current directory and verify paths
         - name: Debug Paths
@@ -43,6 +43,8 @@ jobs:
 
     # Step 4: Run CodeQL Analysis with Tracer
         - name: Run CodeQL Analysis for Java
+          env:
+            CODEQL_EXTRACTOR_JAVA_LOG_LEVEL: DEBUG
           run: |
            mkdir -p results/java
            ./codeql-cli/codeql/codeql database create java-db \
