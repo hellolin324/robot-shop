@@ -11,6 +11,27 @@ permissions:
   security-events: write
 
 jobs:
+  
+  sast_scan:
+    name: Run SAST with CodeQL
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+         languages: 'javascript,python,go,java' # Add other languages as needed
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+ 
+      - name: Run CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: 'sast-analysis'
+
   trivy_scan:
     name: Run Trivy Security Scans
     runs-on: ubuntu-latest
