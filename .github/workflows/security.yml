@@ -76,7 +76,11 @@ jobs:
             echo "preload_tracer is not a directory. Checking if it is a file:"
             file ./codeql-cli/codeql/tools/linux64/preload_tracer || echo "preload_tracer does not exist!"
             fi
-           ./codeql-cli/codeql/tools/linux64/preload_tracer mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
+
+            ldd ./codeql-cli/codeql/tools/linux64/preload_tracer
+           ./codeql-cli/codeql/tools/linux64/preload_tracer echo "Hello from preload_tracer"
+           ./codeql-cli/codeql/tools/linux64/preload_tracer -v mvn --version
+           ./codeql-cli/codeql/tools/linux64/preload_tracer -v mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
            ./codeql-cli/codeql/codeql database finalize java-db
            ./codeql-cli/codeql/codeql database analyze java-db \
               --format=sarif-latest \
