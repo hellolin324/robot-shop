@@ -53,11 +53,18 @@ jobs:
            echo "Checking contents of CodeQL database folder..."
             ls -R $(pwd)/java-db/ || echo "CodeQL database folder is empty or not created properly."
            
+            if [ -f "$(pwd)/java-db/src.zip" ]; then
+            echo "Extracting src.zip into src folder..."
+            unzip -q $(pwd)/java-db/src.zip -d $(pwd)/java-db/src
+            echo "Contents of extracted src folder:"
+            ls -R $(pwd)/java-db/src
+            else
+            echo "src.zip not found! Database might be incomplete."
+            fi
             
             echo "Setting up CodeQL environment variables for tracer..."
             export CODEQL_DIST=$(pwd)/codeql-cli/codeql
             export CODEQL_TRACER_HOME=$(pwd)/codeql-cli/codeql/tools
-            export LD_PRELOAD=$CODEQL_TRACER_HOME/linux64/preload_tracer
             export CODEQL_TRACER_LOG=$(pwd)/codeql-tracer.log
 
             echo "Running Maven build with preload_tracer..."
