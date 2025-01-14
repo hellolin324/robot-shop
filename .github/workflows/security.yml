@@ -25,6 +25,7 @@ jobs:
           uses: github/codeql-action/init@v3
           with:
             languages: 'java'
+            build-mode: manual
 
          # Debug current directory and verify paths
         - name: Debug Paths
