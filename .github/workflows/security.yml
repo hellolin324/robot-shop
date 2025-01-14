@@ -11,26 +11,76 @@ permissions:
   security-events: write
 
 jobs:
-  
-  sast_scan:
-    name: Run SAST with CodeQL
+
+  codeql_sast:
+    name: Run CodeQL SAST Analysis
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+        - name: Checkout Repository
+          uses: actions/checkout@v4
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-         languages: 'javascript,python,go,java' # Add other languages as needed
+      # Java Analysis
+        - name: Initialize CodeQL for Java
+          uses: github/codeql-action/init@v3
+          with:
+            languages: 'java'
 
-      - name: Autobuild
-        uses: github/codeql-action/autobuild@v3
- 
-      - name: Run CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
-        with:
-          category: 'sast-analysis'
+        - name: Autobuild Java
+          uses: github/codeql-action/autobuild@v3
+
+        - name: Run CodeQL Analysis for Java
+          uses: github/codeql-action/analyze@v3
+          with:
+            category: 'sast-java'
+
+      # Python Analysis
+        - name: Initialize CodeQL for Python
+          uses: github/codeql-action/init@v3
+          with:
+            languages: 'python'
+
+        - name: Autobuild Python
+          run: |
+            # Python projects often do not require a build step.
+            echo "No build needed for Python."
+
+        - name: Run CodeQL Analysis for Python
+          uses: github/codeql-action/analyze@v3
+          with:
+            category: 'sast-python'
+
+      # Go Analysis
+        - name: Initialize CodeQL for Go
+          uses: github/codeql-action/init@v3
+          with:
+            languages: 'go'
+
+        - name: Autobuild Go
+          run: |
+            # Custom build steps for Go if needed
+            go build ./...
+
+        - name: Run CodeQL Analysis for Go
+          uses: github/codeql-action/analyze@v3
+          with:
+            category: 'sast-go'
+
+      # JavaScript/TypeScript Analysis
+        - name: Initialize CodeQL for JavaScript
+          uses: github/codeql-action/init@v3
+          with:
+            languages: 'javascript'
+
+        - name: Autobuild JavaScript
+          run: |
+            # JavaScript projects do not usually need a build step, but this can vary
+            echo "No build needed for JavaScript."
+
+        - name: Run CodeQL Analysis for JavaScript
+          uses: github/codeql-action/analyze@v3
+          with:
+            category: 'sast-javascript'
 
   trivy_scan:
     name: Run Trivy Security Scans
