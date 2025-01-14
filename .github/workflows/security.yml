@@ -63,15 +63,14 @@ jobs:
             fi
 
            mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
-           
-           echo "install query pack"
-           ./codeql-cli/codeql/codeql pack install codeql/java-queries
+      
 
            echo "running db analyze..."
            ./codeql-cli/codeql/codeql database analyze java-db \
-              --search-path=./codeql-cli/codeql \
+              --verbose \
               --format=sarif-latest \
               --output=results/java/java-results.sarif
+              codeql/java-queries
   
         - name: Upload SARIF Results for Java
           uses: github/codeql-action/upload-sarif@v3
