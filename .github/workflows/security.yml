@@ -68,7 +68,7 @@ jobs:
             export CODEQL_TRACER_LOG=$(pwd)/codeql-tracer.log
 
             echo "Running Maven build with preload_tracer..."
-           .echo "Checking if preload_tracer is a directory..."
+            echo "Checking if preload_tracer is a directory..."
             if [ -d "./codeql-cli/codeql/tools/linux64/preload_tracer" ]; then
             echo "preload_tracer is a directory. Listing its contents:"
             ls -la ./codeql-cli/codeql/tools/linux64/preload_tracer
