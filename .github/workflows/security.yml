@@ -51,8 +51,18 @@ jobs:
               --language=java \
               --source-root=$(pwd)/shipping
            echo "Checking contents of CodeQL database..."
-           ls -R $(pwd)/java-db/src || echo "No source files found in the database."
-           echo "Running Maven build with preload_tracer..."
+           if [ -d "$(pwd)/java-db/src" ]; then
+            ls -R $(pwd)/java-db/src
+           else
+            echo "No source files found in the database. Please verify the source root path!"
+            exit 1
+           fi
+            echo "Running Maven build with preload_tracer..."
+            echo "Setting up CodeQL environment variables for tracer..."
+            export CODEQL_DIST=$(pwd)/codeql-cli/codeql
+            export CODEQL_TRACER_HOME=$(pwd)/codeql-cli/codeql/tools
+            export LD_PRELOAD=$CODEQL_TRACER_HOME/linux64/preload_tracer
+            export CODEQL_TRACER_LOG=$(pwd)/codeql-tracer.log
            ./codeql-cli/codeql/tools/linux64/preload_tracer mvn clean package -f ./shipping/pom.xml -B -DskipTests -Dspring-boot.repackage.skip=true
            ./codeql-cli/codeql/codeql database finalize java-db
            ./codeql-cli/codeql/codeql database analyze java-db \
