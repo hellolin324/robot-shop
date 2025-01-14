@@ -30,8 +30,15 @@ jobs:
           uses: github/codeql-action/autobuild@v3
 
         - name: Run CodeQL Analysis for Java
-          uses: github/codeql-action/analyze@v3
+          run: |
+            mkdir -p results/java
+            codeql database create java-db --language=java --source-root=.
+            codeql database analyze java-db --format=sarif-latest --output=results/java/java-results.sarif
+  
+        - name: Upload SARIF Results for Java
+          uses: github/codeql-action/upload-sarif@v3
           with:
+            sarif_file: 'results/java/java-results.sarif'
             category: 'sast-java'
 
       # Python Analysis
@@ -40,15 +47,17 @@ jobs:
           with:
             languages: 'python'
 
-        - name: Autobuild Python
-          run: |
-            # Python projects often do not require a build step.
-            echo "No build needed for Python."
-
         - name: Run CodeQL Analysis for Python
-          uses: github/codeql-action/analyze@v3
+          run: |
+              mkdir -p results/python
+              codeql database create python-db --language=python --source-root=.
+              codeql database analyze python-db --format=sarif-latest --output=results/python/python-results.sarif
+    
+        - name: Upload SARIF Results for Python
+          uses: github/codeql-action/upload-sarif@v3
           with:
-            category: 'sast-python'
+              sarif_file: 'results/python/python-results.sarif'
+              category: 'sast-python'
 
       # Go Analysis
         - name: Initialize CodeQL for Go
@@ -62,9 +71,16 @@ jobs:
             go build ./...
 
         - name: Run CodeQL Analysis for Go
-          uses: github/codeql-action/analyze@v3
+          run: |
+              mkdir -p results/go
+              codeql database create go-db --language=go --source-root=.
+              codeql database analyze go-db --format=sarif-latest --output=results/go/go-results.sarif
+    
+        - name: Upload SARIF Results for Go
+          uses: github/codeql-action/upload-sarif@v3
           with:
-            category: 'sast-go'
+              sarif_file: 'results/go/go-results.sarif'
+              category: 'sast-go'
 
       # JavaScript/TypeScript Analysis
         - name: Initialize CodeQL for JavaScript
@@ -77,10 +93,17 @@ jobs:
             # JavaScript projects do not usually need a build step, but this can vary
             echo "No build needed for JavaScript."
 
-        - name: Run CodeQL Analysis for JavaScript
-          uses: github/codeql-action/analyze@v3
+            - name: Run CodeQL Analysis for JavaScript
+            run: |
+              mkdir -p results/javascript
+              codeql database create javascript-db --language=javascript --source-root=.
+              codeql database analyze javascript-db --format=sarif-latest --output=results/javascript/javascript-results.sarif
+    
+        - name: Upload SARIF Results for JavaScript
+          uses: github/codeql-action/upload-sarif@v3
           with:
-            category: 'sast-javascript'
+              sarif_file: 'results/javascript/javascript-results.sarif'
+              category: 'sast-javascript'
 
   trivy_scan:
     name: Run Trivy Security Scans
