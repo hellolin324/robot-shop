@@ -26,6 +26,7 @@ jobs:
           with:
             languages: 'java'
             build-mode: none
+            queries: security-extended
 
          # Debug current directory and verify paths
         - name: Debug Paths
@@ -50,35 +51,14 @@ jobs:
            ./codeql-cli/codeql/codeql database create java-db \
               --language=java \
               --source-root=$(pwd)/shipping
-              
+            
          
-
-   
-            echo "Setting up custom query pack cache..."
-            mkdir -p ./codeql-cache
-            export CODEQL_PACKAGES_PATH=$(pwd)/codeql-cache
-            echo "Using custom query pack cache: $CODEQL_PACKAGES_PATH"
-            
-            echo "Installing the CodeQL query pack for Java..."
-            if ! ./codeql-cli/codeql/codeql pack install codeql/java-queries; then
-              echo "Failed to install query pack. Falling back to manual download..."
-              git clone https://github.com/github/codeql.git
-            fi
-            
-        
-            if [ -d "./codeql-cache/codeql/java-queries" ]; then
-              echo "Running analysis with cached query pack..."
+              echo "Running analysis with query pack..."
               ./codeql-cli/codeql/codeql database analyze java-db \
                 --format=sarif-latest \
                 --output=results/java/java-results.sarif \
                 ./codeql-cache/codeql/java-queries
-            else
-              echo "Running analysis with manually downloaded query pack..."
-              ./codeql-cli/codeql/codeql database analyze java-db \
-                --format=sarif-latest \
-                --output=results/java/java-results.sarif \
-                ./codeql/java/ql/src
-            fi
+           
   
         - name: Upload SARIF Results for Java
           uses: github/codeql-action/upload-sarif@v3
