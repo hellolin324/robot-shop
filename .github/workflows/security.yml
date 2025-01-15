@@ -52,7 +52,8 @@ jobs:
             codeql/go-queries: '*'
             " > qlpack.yml
 
-             echo "installing query pack" 
+             echo "Listing query pack"
+            ./codeql-cli/codeql/codeql pack list
             ./codeql-cli/codeql/codeql pack install
 
     # Step 4: Run CodeQL Analysis with Tracer
