@@ -53,7 +53,7 @@ jobs:
             " > qlpack.yml
 
              echo "Listing query pack"
-            ./codeql-cli/codeql/codeql pack list
+            ./codeql-cli/codeql/codeql pack --help
             ./codeql-cli/codeql/codeql pack install
 
     # Step 4: Run CodeQL Analysis with Tracer
