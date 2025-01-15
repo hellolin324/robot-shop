@@ -42,19 +42,12 @@ jobs:
             unzip codeql-linux64.zip -d codeql-cli
             export PATH=$PATH:$(pwd)/codeql-cli/codeql
 
-            echo "
-            name: my-custom-queries
-            version: 1.0.0
-            dependencies:
-            codeql/java-queries: '*'
-            codeql/python-queries: '*'
-            codeql/javascript-queries: '*'
-            codeql/go-queries: '*'
-            " > qlpack.yml
+             
+            ./codeql-cli/codeql/codeql pack download codeql/java-queries codeql/python-queries codeql/javascript-queries codeql/go-queries
 
-             echo "Listing query pack"
-            ./codeql-cli/codeql/codeql pack --help
-            ./codeql-cli/codeql/codeql pack install
+    
+            echo "Installed query packs:"
+            find ~/.codeql/packages -type d
 
     # Step 4: Run CodeQL Analysis with Tracer
         - name: Run CodeQL Analysis for Java
