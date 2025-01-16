@@ -41,13 +41,7 @@ jobs:
             wget https://github.com/github/codeql-cli-binaries/releases/download/v2.20.1/codeql-linux64.zip
             unzip codeql-linux64.zip -d codeql-cli
             export PATH=$PATH:$(pwd)/codeql-cli/codeql
-
-             
             ./codeql-cli/codeql/codeql pack download codeql/java-queries codeql/python-queries codeql/javascript-queries codeql/go-queries
-
-    
-            echo "Installed query packs:"
-            find ~/.codeql/packages -type d
 
     # Step 4: Run CodeQL Analysis with Tracer
         - name: Run CodeQL Analysis for Java
@@ -58,7 +52,6 @@ jobs:
            ./codeql-cli/codeql/codeql database create java-db \
               --language=java \
               --source-root=$(pwd)/shipping
-            
          
               echo "Running analysis with query pack..."
               ./codeql-cli/codeql/codeql database analyze java-db \
