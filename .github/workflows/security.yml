@@ -74,8 +74,8 @@ jobs:
         - name: Run CodeQL Analysis for Python
           run: |
               mkdir -p results/python
-              "${CODEQL_DIST}/codeql" database create python-db --language=python --source-root=.
-              "${CODEQL_DIST}/codeql" database analyze python-db --format=sarif-latest --output=results/python/python-results.sarif
+              ./codeql-cli/codeql/codeql database create python-db --language=python --source-root=.
+              ./codeql-cli/codeql/codeql database analyze python-db --format=sarif-latest --output=results/python/python-results.sarif
     
         - name: Upload SARIF Results for Python
           uses: github/codeql-action/upload-sarif@v3
@@ -97,8 +97,8 @@ jobs:
         - name: Run CodeQL Analysis for Go
           run: |
               mkdir -p results/go
-              "${CODEQL_DIST}/codeql" database create go-db --language=go --source-root=.
-              "${CODEQL_DIST}/codeql" database analyze go-db --format=sarif-latest --output=results/go/go-results.sarif
+              ./codeql-cli/codeql/codeql database create go-db --language=go --source-root=.
+              ./codeql-cli/codeql/codeql database analyze go-db --format=sarif-latest --output=results/go/go-results.sarif
     
         - name: Upload SARIF Results for Go
           uses: github/codeql-action/upload-sarif@v3
@@ -120,8 +120,8 @@ jobs:
             - name: Run CodeQL Analysis for JavaScript
             run: |
               mkdir -p results/javascript
-              "${CODEQL_DIST}/codeql" database create javascript-db --language=javascript --source-root=.
-              "${CODEQL_DIST}/codeql" database analyze javascript-db --format=sarif-latest --output=results/javascript/javascript-results.sarif
+              ./codeql-cli/codeql/codeql database create javascript-db --language=javascript --source-root=.
+              ./codeql-cli/codeql/codeql database analyze javascript-db --format=sarif-latest --output=results/javascript/javascript-results.sarif
     
         - name: Upload SARIF Results for JavaScript
           uses: github/codeql-action/upload-sarif@v3
