@@ -94,8 +94,8 @@ jobs:
             # JavaScript projects do not usually need a build step, but this can vary
             echo "No build needed for JavaScript."
 
-            - name: Run CodeQL Analysis for JavaScript
-            run: |
+        - name: Run CodeQL Analysis for JavaScript
+          run: |
               mkdir -p results/javascript
               ./codeql-cli/codeql/codeql database create javascript-db --language=javascript --source-root=.
               ./codeql-cli/codeql/codeql database analyze javascript-db --format=sarif-latest --output=results/javascript/javascript-results.sarif
