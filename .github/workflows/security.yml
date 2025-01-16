@@ -106,28 +106,23 @@ jobs:
               sarif_file: 'results/javascript/javascript-results.sarif'
               category: 'sast-javascript'
 
-      # # Go Analysis
-      #   - name: Initialize CodeQL for Go
-      #     uses: github/codeql-action/init@v3
-      #     with:
-      #       languages: 'go'
+      # Go Analysis
+        - name: Initialize CodeQL for Go
+          uses: github/codeql-action/init@v3
+          with:
+            languages: 'go'
 
-      #   - name: Autobuild Go
-      #     run: |
-      #       # Custom build steps for Go if needed
-      #       go build ./...
-
-      #   - name: Run CodeQL Analysis for Go
-      #     run: |
-      #         mkdir -p results/go
-      #         ./codeql-cli/codeql/codeql database create go-db --language=go --source-root=.
-      #         ./codeql-cli/codeql/codeql database analyze go-db --format=sarif-latest --output=results/go/go-results.sarif
+        - name: Run CodeQL Analysis for Go
+          run: |
+              mkdir -p results/go
+              ./codeql-cli/codeql/codeql database create go-db --language=go --source-root=.
+              ./codeql-cli/codeql/codeql database analyze go-db --format=sarif-latest --output=results/go/go-results.sarif
     
-      #   - name: Upload SARIF Results for Go
-      #     uses: github/codeql-action/upload-sarif@v3
-      #     with:
-      #         sarif_file: 'results/go/go-results.sarif'
-      #         category: 'sast-go'
+        - name: Upload SARIF Results for Go
+          uses: github/codeql-action/upload-sarif@v3
+          with:
+              sarif_file: 'results/go/go-results.sarif'
+              category: 'sast-go'
 
      
 
